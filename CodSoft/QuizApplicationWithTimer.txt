@@ -1,0 +1,98 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
+
+class QuizQuestion {
+    String question;
+    List<String> options;
+    int correctAnswerIndex;
+
+    public QuizQuestion(String question, List<String> options, int correctAnswerIndex) {
+        this.question = question;
+        this.options = options;
+        this.correctAnswerIndex = correctAnswerIndex;
+    }
+}
+
+class QuizApplication {
+    private static List<QuizQuestion> quizQuestions;
+    private static int currentQuestionIndex = 0;
+    private static int score = 0;
+    private static Timer timer;
+
+    public static void main(String[] args) {
+        initializeQuizQuestions();
+
+        startQuiz();
+    }
+
+    private static void initializeQuizQuestions() {
+        quizQuestions = new ArrayList<>();
+        quizQuestions.add(new QuizQuestion("A. What is the capital of France?",
+                List.of("London", "Berlin", "Paris", "Madrid"), 2));
+
+        quizQuestions.add(new QuizQuestion("B.. Who is the currently Prime Minister of India?",
+                List.of("Aditya Nath Yogi", "Nitish Kumar", "Pushkar Singh Dhami", "Narendra Modi"), 3));
+
+        quizQuestions.add(new QuizQuestion("C. 8 * 9 + 12 - 25 / 5 = ?",
+                List.of("71", "69", "79", "-65"), 2));
+
+        quizQuestions.add(new QuizQuestion("D. What is the Capital of Uttar Pradesh?", List.of("Lucknow","Patna","Delhi","Dehradun"), 0));
+    }
+
+    private static void startQuiz() {
+        if (currentQuestionIndex < quizQuestions.size()) {
+            QuizQuestion currentQuestion = quizQuestions.get(currentQuestionIndex);
+            displayQuestion(currentQuestion);
+
+            int timeLimit = 10;
+            startTimer(timeLimit);
+            handleUserAnswer(currentQuestion);
+        } else {
+            displayResult();
+        }
+    }
+
+    private static void displayQuestion(QuizQuestion question) {
+        System.out.println(question.question);
+        for (int i = 0; i < question.options.size(); i++) {
+            System.out.println((i + 1) + ". " + question.options.get(i));
+        }
+    }
+
+    private static void startTimer(int seconds) {
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println("Time's up!");
+                handleUserAnswer(null);
+            }
+        }, seconds * 1000);
+    }
+
+    private static void handleUserAnswer(QuizQuestion question) {
+        Scanner scanner = new Scanner(System.in);
+        String userInput = scanner.nextLine();
+
+        if (question == null || Integer.parseInt(userInput) - 1 == question.correctAnswerIndex) {
+            System.out.println("Correct!");
+            score++;
+        } else {
+            System.out.println("Incorrect.");
+        }
+
+        timer.cancel();
+
+        currentQuestionIndex++;
+        startQuiz();
+    }
+
+    private static void displayResult() {
+        System.out.println("Quiz Completed!");
+        System.out.println("Your Score: " + score + " out of " + quizQuestions.size());
+    }
+}
+
